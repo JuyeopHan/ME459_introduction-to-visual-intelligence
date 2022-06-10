@@ -132,6 +132,28 @@ def findImgWidthDim(Img):
             break
     return min_idx_width, max_idx_width
 
+def disparityImage(imgL, imgR):
+    
+    window_size = 3
+    stereo = cv.StereoSGBM_create(minDisparity=0,numDisparities = 256,
+                                  blockSize = 21,
+                                  P1= 8*3*window_size **2,
+                                  P2= 32*3*window_size **2,
+                                  disp12MaxDiff = 3,
+                                  uniquenessRatio = 15,
+                                  speckleWindowSize=0,
+                                  speckleRange=2,
+                                  preFilterCap=63,
+                                  mode=cv.STEREO_SGBM_MODE_SGBM_3WAY)
+    
+    disparity_SGBM = stereo.compute(imgL, imgR)
+
+    # Normalize the values to a range from 0..255 for a grayscale image
+    disparity_SGBM = cv.normalize(disparity_SGBM, disparity_SGBM, alpha=255,
+                                beta=0, norm_type=cv.NORM_MINMAX)
+    disparity_SGBM = np.uint8(disparity_SGBM)
+    
+    return disparity_SGBM
   
 if __name__ == '__main__':
     img = cv.imread("./StereoImages/00007_ref.png")
